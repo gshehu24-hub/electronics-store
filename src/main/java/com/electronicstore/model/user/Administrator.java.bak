@@ -1,0 +1,29 @@
+package com.electronicstore.model.user;
+
+import java.util.List;
+
+public class Administrator extends User {
+
+    public Administrator(String userId, String username) {
+        super(userId, username);
+        this.accessLevel = AccessLevel.ADMIN;
+    }
+
+    public void manageUser() {
+        // stub for managing users
+    }
+
+    public void viewReport() {
+        // stub for viewing reports
+    }
+
+    @Override
+    public String getRole() {
+        return "Administrator";
+    }
+
+    @Override
+    public List<String> getPermissions() {
+        return List.of("USER_MANAGE", "VIEW_REPORTS");
+    }
+}

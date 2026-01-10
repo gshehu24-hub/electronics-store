@@ -1,0 +1,10 @@
+package com.electronicstore.model.inventory;
+
+public class Supplier {
+    private String supplierId;
+    private String name;
+
+    public Supplier() {}
+
+    
+}

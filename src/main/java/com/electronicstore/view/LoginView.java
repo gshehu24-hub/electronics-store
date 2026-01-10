@@ -1,0 +1,7 @@
+package com.electronicstore.view;
+
+public class LoginView {
+    public void show() {
+        
+    }
+}

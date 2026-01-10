@@ -1,0 +1,79 @@
+package electronicstore.model.transactions;
+
+import electronicstore.model.inventory.Item;
+import electronicstore.model.users.Cashier;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Bill implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String billNumber;
+    private LocalDate billDate;
+    private LocalTime billTime;
+    private Cashier cashier;
+    private List<BillItem> items;
+    private double totalAmount;
+
+    public Bill(String billNumber, LocalDate billDate, LocalTime billTime, Cashier cashier) {
+        this.billNumber = billNumber;
+        this.billDate = billDate;
+        this.billTime = billTime;
+        this.cashier = cashier;
+        this.items = new ArrayList<>();
+        this.totalAmount = 0.0;
+    }
+
+    public void addItem(Item item, int quantity, double price) {
+        BillItem billItem = new BillItem(item, quantity, price, item.getDiscountPercent());
+        items.add(billItem);
+        totalAmount += billItem.getSubtotal();
+    }
+
+    public double calculateTotal() {
+        totalAmount = 0.0;
+        for (BillItem item : items) {
+            totalAmount += item.getSubtotal();
+        }
+        return totalAmount;
+    }
+
+    public String generateBillContent() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("================================\n");
+        sb.append("    Inventa\n");
+        sb.append("================================\n");
+        sb.append("Bill Number: ").append(billNumber).append("\n");
+        sb.append("Date: ").append(billDate).append("\n");
+        sb.append("Time: ").append(billTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))).append("\n");
+        sb.append("Cashier: ").append(cashier.getUsername()).append("\n\n");
+        sb.append("Items:\n");
+        for (int i = 0; i < items.size(); i++) {
+            BillItem item = items.get(i);
+            sb.append((i + 1)).append(". ").append(item.getItem().getName())
+              .append(" - Qty: ").append(item.getQuantity())
+              .append(" - Price: $").append(String.format("%.2f", item.getPriceAtSale()))
+              .append(" - Subtotal: $").append(String.format("%.2f", item.getSubtotal())).append("\n");
+        }
+        sb.append("\nTotal Amount: $").append(String.format("%.2f", totalAmount)).append("\n");
+        sb.append("================================\n");
+        return sb.toString();
+    }
+
+    public String getFileName() {
+        return billNumber + "_" + billDate + ".txt";
+    }
+
+    
+    public String getBillNumber() { return billNumber; }
+    public LocalDate getBillDate() { return billDate; }
+    public LocalTime getBillTime() { return billTime; }
+    public Cashier getCashier() { return cashier; }
+    public List<BillItem> getItems() { return items; }
+    public double getTotalAmount() { return totalAmount; }
+}

@@ -1,0 +1,13 @@
+================================
+    ELECTRONIC STORE
+================================
+Bill Number: BILL-00005
+Date: 2025-12-24
+Time: 00:06:32
+Cashier: kshehu
+
+Items:
+1. Latte - Qty: 20 - Price: $11.40 - Subtotal: $216.60
+
+Total Amount: $216.60
+================================

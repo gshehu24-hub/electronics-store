@@ -1,0 +1,31 @@
+package com.electronicstore.model.user;
+
+import java.util.List;
+import java.util.ArrayList;
+
+public class Manager extends User {
+    private List<String> sectors = new ArrayList<>();
+
+    public Manager(String userId, String username) {
+        super(userId, username);
+        this.accessLevel = AccessLevel.MANAGER;
+    }
+
+    public void supplyStock() {
+        // stub
+    }
+
+    public void applyDiscount() {
+        // stub
+    }
+
+    @Override
+    public String getRole() {
+        return "Manager";
+    }
+
+    @Override
+    public List<String> getPermissions() {
+        return List.of("MANAGE_STOCK", "APPLY_DISCOUNT");
+    }
+}

@@ -1,0 +1,15 @@
+package com.electronicstore.controller;
+
+import com.electronicstore.service.BillingService;
+
+public class CashierController {
+    private BillingService billingService;
+
+    public CashierController(BillingService billingService) {
+        this.billingService = billingService;
+    }
+
+    public void createBill() {
+        
+    }
+}

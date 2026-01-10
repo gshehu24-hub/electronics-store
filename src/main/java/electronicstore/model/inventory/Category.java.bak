@@ -1,0 +1,50 @@
+package electronicstore.model.inventory;
+
+import electronicstore.model.exceptions.ItemNotFoundException;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Category implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String categoryID;
+    private String categoryName;
+    private String description;
+    private List<Item> items;
+
+    public Category(String categoryID, String categoryName, String description) {
+        this.categoryID = categoryID;
+        this.categoryName = categoryName;
+        this.description = description;
+        this.items = new ArrayList<>();
+    }
+
+    public void addItem(Item item) {
+        items.add(item);
+        item.setCategory(this);
+    }
+
+    public Item findItem(String itemID) throws ItemNotFoundException {
+        for (Item item : items) {
+            if (item.getItemID().equals(itemID)) {
+                return item;
+            }
+        }
+        throw new ItemNotFoundException(itemID);
+    }
+
+    // Getters and setters
+    public String getCategoryID() { return categoryID; }
+    public void setCategoryID(String categoryID) { this.categoryID = categoryID; }
+
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public List<Item> getItems() { return items; }
+    public void setItems(List<Item> items) { this.items = items; }
+}

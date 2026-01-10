@@ -1,0 +1,117 @@
+/* Black and White theme - simplified */
+
+/* Root */
+.root {
+    -fx-background-color: white;
+    -fx-font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.main-layout, .dashboard-container, .card, .form-container, .login-form, .alert {
+    -fx-background-color: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 12px;
+}
+
+/* Top bar */
+.top-bar {
+    -fx-background-color: white;
+    -fx-padding: 12px 16px;
+    -fx-border-color: black;
+    -fx-border-width: 0 0 1 0;
+}
+
+.top-bar .label {
+    -fx-text-fill: black;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Buttons - uniform black background with white text */
+.button {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-padding: 8px 14px;
+}
+
+.button:hover {
+    -fx-background-color: #222222;
+}
+
+/* Neutralize variant classes */
+.button.danger, .button.success, .button.warning {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+/* Text Fields */
+.text-field, .combo-box, .date-picker {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 6px 8px;
+    -fx-font-size: 13px;
+}
+
+.text-field:focused {
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: black;
+    -fx-font-size: 13px;
+}
+
+.label.header { -fx-font-size: 16px; -fx-font-weight: bold; }
+.label.error { -fx-text-fill: black; }
+
+/* Tables */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-radius: 4px;
+}
+
+.table-view .column-header, .table-view .column-header-background {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.table-view .table-row-cell:hover { -fx-background-color: #f2f2f2; }
+.table-view .table-row-cell:selected { -fx-background-color: #e6e6e6; }
+
+/* Tabs */
+.tab-pane { -fx-tab-min-width: 100px; -fx-tab-max-width: 200px; }
+.tab { -fx-background-color: white; -fx-border-color: black; }
+.tab:selected { -fx-background-color: black; }
+.tab:selected .tab-label { -fx-text-fill: white; }
+
+/* Login container */
+.login-container { -fx-background-color: white; -fx-padding: 30px; }
+.login-title { -fx-text-fill: black; -fx-font-size: 22px; -fx-font-weight: bold; }
+
+/* Branding */
+.branding-name { -fx-text-fill: #2E86AB; -fx-font-weight: bold; }
+.branding-logo { -fx-padding: 2px; }
+.dashboard-branding { -fx-alignment: center-left; }
+
+/* Alerts and status indicators - neutral */
+.status-online, .status-offline, .status-warning { -fx-background-color: black; -fx-background-radius: 50%; }
+
+/* Misc */
+.separator { -fx-background-color: black; }
+.hbox { -fx-spacing: 12px; -fx-alignment: center-left; }
+.vbox { -fx-spacing: 12px; }
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+    .button { -fx-padding: 6px 10px; -fx-font-size: 12px; }
+    .top-bar .label { -fx-font-size: 18px; }
+}

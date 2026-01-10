@@ -1,0 +1,8 @@
+package com.electronicstore.service;
+
+public class AuthenticationService {
+    public boolean authenticate(String username, String password) {
+        // stub: verify credentials via repository
+        return true;
+    }
+}
