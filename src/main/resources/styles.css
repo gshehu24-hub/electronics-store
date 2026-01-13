@@ -1,117 +1,167 @@
-/* Black and White theme - simplified */
+/* Modern in-house theme */
 
-/* Root */
 .root {
-    -fx-background-color: white;
+    -fx-background-color: linear-gradient(to bottom, #061021, #081725);
     -fx-font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    -fx-text-fill: #000000;
 }
 
 .main-layout, .dashboard-container, .card, .form-container, .login-form, .alert {
-    -fx-background-color: white;
-    -fx-background-radius: 6px;
-    -fx-padding: 12px;
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-background-radius: 10px;
+    -fx-padding: 16px;
+    /* removed drop shadow for clean flat look */
 }
 
-/* Top bar */
 .top-bar {
-    -fx-background-color: white;
-    -fx-padding: 12px 16px;
-    -fx-border-color: black;
+    -fx-background-color: transparent;
+    -fx-padding: 12px 18px;
+    -fx-border-color: rgba(255,255,255,0.06);
     -fx-border-width: 0 0 1 0;
 }
 
 .top-bar .label {
-    -fx-text-fill: black;
+    -fx-text-fill: #000000;
     -fx-font-size: 20px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 600;
 }
 
-/* Buttons - uniform black background with white text */
-.button {
-    -fx-background-color: black;
-    -fx-text-fill: white;
+/* Primary raised button (text) */
+.button.primary {
+    -fx-background-color: linear-gradient(#2EA0FF, #1E88E5);
+    -fx-text-fill: #000000;
     -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8px;
     -fx-padding: 8px 14px;
 }
 
-.button:hover {
-    -fx-background-color: #222222;
+/* Base button style */
+.button {
+    -fx-background-color: transparent;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 10px;
+    -fx-font-weight: 600;
 }
 
-/* Neutralize variant classes */
-.button.danger, .button.success, .button.warning {
-    -fx-background-color: black;
-    -fx-text-fill: white;
+.button.ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: #CBD5E1;
+    -fx-border-width: 1px;
+    -fx-text-fill: #000000;
 }
 
-/* Text Fields */
-.text-field, .combo-box, .date-picker {
-    -fx-background-color: white;
-    -fx-border-color: black;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
-    -fx-padding: 6px 8px;
-    -fx-font-size: 13px;
+.button.danger {
+    -fx-background-color: linear-gradient(#FFB4B4,#FF6B6B);
+    -fx-text-fill: #000000;
 }
 
-.text-field:focused {
-    -fx-border-color: black;
-    -fx-border-width: 2px;
+.button.success {
+    -fx-background-color: linear-gradient(#86efac,#22c55e);
+    -fx-text-fill: #000000;
 }
 
-/* Labels */
-.label {
-    -fx-text-fill: black;
-    -fx-font-size: 13px;
+.button.ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #000000;
 }
 
-.label.header { -fx-font-size: 16px; -fx-font-weight: bold; }
-.label.error { -fx-text-fill: black; }
-
-/* Tables */
-.table-view {
-    -fx-background-color: white;
-    -fx-border-color: black;
-    -fx-border-radius: 4px;
+/* Icon buttons */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 6px;
+    -fx-cursor: hand;
+    -fx-alignment: center; /* center graphic inside button */
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-pref-width: 36px;
+    -fx-pref-height: 36px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+.icon-button:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
 }
 
-.table-view .column-header, .table-view .column-header-background {
-    -fx-background-color: black;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-}
-
-.table-view .table-row-cell:hover { -fx-background-color: #f2f2f2; }
-.table-view .table-row-cell:selected { -fx-background-color: #e6e6e6; }
-
-/* Tabs */
-.tab-pane { -fx-tab-min-width: 100px; -fx-tab-max-width: 200px; }
-.tab { -fx-background-color: white; -fx-border-color: black; }
-.tab:selected { -fx-background-color: black; }
-.tab:selected .tab-label { -fx-text-fill: white; }
-
-/* Login container */
-.login-container { -fx-background-color: white; -fx-padding: 30px; }
-.login-title { -fx-text-fill: black; -fx-font-size: 22px; -fx-font-weight: bold; }
-
-/* Branding */
-.branding-name { -fx-text-fill: #2E86AB; -fx-font-weight: bold; }
 .branding-logo { -fx-padding: 2px; }
-.dashboard-branding { -fx-alignment: center-left; }
+.branding-name { -fx-font-weight: 700; -fx-text-fill: #BEE3FF; }
 
-/* Alerts and status indicators - neutral */
-.status-online, .status-offline, .status-warning { -fx-background-color: black; -fx-background-radius: 50%; }
+/* Ensure glyph/label inside branding/icon buttons is visible */
+.branding-logo Label, .icon-button Label, .branding-logo .label {
+    -fx-text-fill: #000000;
+    -fx-font-weight: 700;
+}
 
-/* Misc */
-.separator { -fx-background-color: black; }
+.text-field, .combo-box, .date-picker {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.06);
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #000000;
+}
+
+/* prompt text should be muted but readable */
+.text-field .text, .text-field .prompt {
+    -fx-fill: #000000;
+}
+.text-field .prompt {
+    -fx-fill: #6B7280; /* muted prompt color */
+}
+
+/* Explicitly set prompt text color for JavaFX controls */
+.text-field, .combo-box {
+    -fx-prompt-text-fill: #6B7280;
+}
+
+.text-field:focused { -fx-border-color: rgba(30,136,229,0.9); -fx-border-width: 2px; }
+
+.label { -fx-text-fill: #000000; -fx-font-size: 13px; }
+.label, .button, .icon-button {
+    -fx-text-fill: #000000;
+}
+
+/* Make sure ghost buttons still have readable text */
+.button.ghost {
+    -fx-text-fill: #E6EEF6;
+}
+.label.header { -fx-font-size: 16px; -fx-font-weight: 700; }
+.label.error { -fx-text-fill: #FF6B6B; }
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.05);
+    -fx-table-cell-border-color: transparent;
+}
+.table-view .column-header-background { -fx-background-color: rgba(255,255,255,0.02); }
+.table-view .column-header .label { -fx-text-fill: #000000; -fx-font-weight: 600; }
+
+/* Table cell text explicit color */
+.table-view .table-cell {
+    -fx-text-fill: #000000;
+}
+.table-view .table-row-cell:hover { -fx-background-color: rgba(255,255,255,0.02); }
+.table-view .table-row-cell:selected { -fx-background-color: rgba(30,136,229,0.12); }
+
+.tab-pane { -fx-tab-min-width: 100px; -fx-tab-max-width: 240px; }
+.tab { -fx-background-color: transparent; }
+.tab:selected { -fx-background-color: rgba(30,136,229,0.14); -fx-border-radius: 6px; }
+
+.login-container { -fx-background-color: transparent; -fx-padding: 30px; }
+.login-title { -fx-text-fill: #BEE3FF; -fx-font-size: 22px; -fx-font-weight: 700; }
+
 .hbox { -fx-spacing: 12px; -fx-alignment: center-left; }
 .vbox { -fx-spacing: 12px; }
 
-/* Responsive adjustments */
+/* small utility classes */
+.success { -fx-text-fill: #4ADE80; }
+.warning { -fx-text-fill: #FBBF24; }
+.danger { -fx-text-fill: #FF6B6B; }
+
 @media (max-width: 800px) {
-    .button { -fx-padding: 6px 10px; -fx-font-size: 12px; }
+    .button.primary { -fx-padding: 6px 10px; -fx-font-size: 12px; }
     .top-bar .label { -fx-font-size: 18px; }
 }

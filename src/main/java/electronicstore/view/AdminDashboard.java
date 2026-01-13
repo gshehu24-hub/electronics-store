@@ -62,17 +62,10 @@ public class AdminDashboard {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button resetButton = new Button("Reset");
-        resetButton.getStyleClass().add("button");
-        resetButton.getStyleClass().add("warning");
-        resetButton.setOnAction(e -> resetDashboard());
-
-        Button logoutButton = new Button("Logout");
-        logoutButton.getStyleClass().add("button");
-        logoutButton.getStyleClass().add("danger");
+        Button logoutButton = electronicstore.view.Branding.createIconButton("⏻", "Logout", 12, "#FF6B6B");
         logoutButton.setOnAction(e -> logout());
 
-        topBar.getChildren().addAll(branding, titleLabel, spacer, resetButton, logoutButton);
+        topBar.getChildren().addAll(branding, titleLabel, spacer, logoutButton);
         mainLayout.setTop(topBar);
 
         VBox centerLayout = new VBox(20);
@@ -115,18 +108,15 @@ public class AdminDashboard {
         employeeButtons.getStyleClass().add("hbox");
 
         Button addButton = new Button("Add Employee");
-        addButton.getStyleClass().add("button");
-        addButton.getStyleClass().add("success");
+        addButton.getStyleClass().addAll("button", "primary", "success");
         addButton.setOnAction(e -> showAddEmployeeDialog());
 
         Button modifyButton = new Button("Modify Employee");
-        modifyButton.getStyleClass().add("button");
-        modifyButton.getStyleClass().add("warning");
+        modifyButton.getStyleClass().addAll("button", "ghost");
         modifyButton.setOnAction(e -> showModifyEmployeeDialog());
 
         Button deleteButton = new Button("Delete Employee");
-        deleteButton.getStyleClass().add("button");
-        deleteButton.getStyleClass().add("danger");
+        deleteButton.getStyleClass().addAll("button", "danger");
         deleteButton.setOnAction(e -> deleteSelectedEmployee());
 
         employeeButtons.getChildren().addAll(addButton, modifyButton, deleteButton);
@@ -460,17 +450,7 @@ public class AdminDashboard {
         }
     }
 
-    private void resetDashboard() {
-        
-        totalIncomeLabel.setText("Total Income: $0.00");
-        totalCostsLabel.setText("Total Costs: $0.00");
-        netProfitLabel.setText("Net Profit: $0.00");
-        totalSalariesLabel.setText("Total Salaries: $0.00");
-
-        
-        employeeData.clear();
-        employeeData.addAll(admin.getEmployeeList());
-    }
+    // resetDashboard removed — manual reset no longer exposed in UI
 
     private void logout() {
         

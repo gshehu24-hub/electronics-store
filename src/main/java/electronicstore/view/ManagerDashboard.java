@@ -60,17 +60,10 @@ public class ManagerDashboard {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button resetButton = new Button("Reset");
-        resetButton.getStyleClass().add("button");
-        resetButton.getStyleClass().add("warning");
-        resetButton.setOnAction(e -> resetDashboard());
-
-        Button logoutButton = new Button("Logout");
-        logoutButton.getStyleClass().add("button");
-        logoutButton.getStyleClass().add("danger");
+        Button logoutButton = electronicstore.view.Branding.createIconButton("⏻", "Logout", 12, "#FF6B6B");
         logoutButton.setOnAction(e -> logout());
 
-        topBar.getChildren().addAll(branding, titleLabel, spacer, resetButton, logoutButton);
+        topBar.getChildren().addAll(branding, titleLabel, spacer, logoutButton);
         mainLayout.setTop(topBar);
 
         tabPane = new TabPane();
@@ -152,19 +145,16 @@ public class ManagerDashboard {
         buttons.getStyleClass().add("hbox");
 
         Button addItemButton = new Button("Add Item");
-        addItemButton.getStyleClass().add("button");
-        addItemButton.getStyleClass().add("success");
+        addItemButton.getStyleClass().addAll("button", "primary", "success");
 
         Button updateItemButton = new Button("Update Item");
-        updateItemButton.getStyleClass().add("button");
-        updateItemButton.getStyleClass().add("warning");
+        updateItemButton.getStyleClass().addAll("button", "ghost");
 
         Button applyDiscountButton = new Button("Apply Discount");
-        applyDiscountButton.getStyleClass().add("button");
+        applyDiscountButton.getStyleClass().addAll("button");
 
         Button deleteItemButton = new Button("Delete Item");
-        deleteItemButton.getStyleClass().add("button");
-        deleteItemButton.getStyleClass().add("danger");
+        deleteItemButton.getStyleClass().addAll("button", "danger");
 
         addItemButton.setOnAction(e -> showAddItemDialog(itemData));
         updateItemButton.setOnAction(e -> showUpdateItemDialog(itemTable.getSelectionModel().getSelectedItem(), itemData));
@@ -714,44 +704,7 @@ public class ManagerDashboard {
         return layout;
     }
 
-    private void resetDashboard() {
-        
-        manager.loadInventory();
-
-        
-        tabPane.getTabs().clear();
-
-        
-        Tab inventoryTab = new Tab("Inventory");
-        VBox inventoryLayout = createInventoryTab();
-        inventoryTab.setContent(inventoryLayout);
-
-        
-        Tab suppliersTab = new Tab("Suppliers");
-        VBox suppliersLayout = createSuppliersTab();
-        suppliersTab.setContent(suppliersLayout);
-
-        
-        Tab alertsTab = new Tab("Stock Alerts");
-        VBox alertsLayout = createAlertsTab();
-        alertsTab.setContent(alertsLayout);
-
-        
-        Tab statsTab = new Tab("Statistics");
-        VBox statsLayout = createStatisticsTab();
-        statsTab.setContent(statsLayout);
-
-        
-        inventoryTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
-        suppliersTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
-        alertsTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
-        statsTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
-
-        tabPane.getTabs().addAll(inventoryTab, suppliersTab, alertsTab, statsTab);
-
-        
-        tabPane.getSelectionModel().select(0);
-    }
+    // resetDashboard removed — functionality no longer exposed via UI
 
     private void logout() {
         

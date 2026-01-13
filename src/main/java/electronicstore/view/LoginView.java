@@ -74,8 +74,7 @@ public class LoginView {
 
         
         Button loginButton = new Button("Login");
-        loginButton.getStyleClass().add("button");
-        loginButton.getStyleClass().add("success");
+        loginButton.getStyleClass().addAll("button", "primary");
         loginButton.setOnAction(e -> handleLogin());
 
         

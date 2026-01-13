@@ -10,8 +10,8 @@ public class CashierController {
         this.cashier = cashier;
     }
 
-    public void addItemToBill(String itemID, int qty) throws Exception {
-        cashier.addItemToBill(itemID, qty);
+    public boolean addItemToBill(String itemID, int qty) throws Exception {
+        return cashier.addItemToBill(itemID, qty);
     }
 
     public double getBillTotal() {

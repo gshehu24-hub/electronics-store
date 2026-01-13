@@ -8,6 +8,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.control.Label;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
+import javafx.scene.text.Font;
 
 public class Branding {
     public static HBox createLargeBranding() {
@@ -21,6 +24,33 @@ public class Branding {
 
     public static Node createSmallIcon() {
         return createLogoIcon(10);
+    }
+
+    public static Button createIconButton(String glyph, String tooltipText, double radius, String bgColor) {
+        StackPane icon = createGlyphIcon(glyph, radius, bgColor);
+        Button btn = new Button();
+        btn.setGraphic(icon);
+        btn.getStyleClass().add("icon-button");
+        if (tooltipText != null && !tooltipText.isEmpty()) {
+            Tooltip.install(btn, new Tooltip(tooltipText));
+        }
+        return btn;
+    }
+
+    public static StackPane createGlyphIcon(String glyph, double radius, String bgColor) {
+        Circle circle = new Circle(radius, Color.web(bgColor));
+        Label glyphLabel = new Label(glyph);
+        glyphLabel.setTextFill(Color.WHITE);
+        // size glyph to fit comfortably inside the circle
+        double fontSize = Math.max(10, radius * 0.9);
+        glyphLabel.setFont(Font.font(fontSize));
+        StackPane stack = new StackPane(circle, glyphLabel);
+        stack.setPrefSize(radius * 2.0, radius * 2.0);
+        stack.setMaxSize(radius * 2.0, radius * 2.0);
+        stack.setMinSize(radius * 2.0, radius * 2.0);
+        stack.setAlignment(javafx.geometry.Pos.CENTER);
+        stack.getStyleClass().add("branding-logo");
+        return stack;
     }
 
     private static StackPane createLogoIcon(double radius) {

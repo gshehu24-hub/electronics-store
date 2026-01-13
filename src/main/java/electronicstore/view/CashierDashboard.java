@@ -60,24 +60,18 @@ public class CashierDashboard {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button resetButton = new Button("Reset");
-        resetButton.getStyleClass().add("button");
-        resetButton.getStyleClass().add("warning");
-        resetButton.setOnAction(e -> resetDashboard());
-
-        Button logoutButton = new Button("Logout");
-        logoutButton.getStyleClass().add("button");
-        logoutButton.getStyleClass().add("danger");
+        Button logoutButton = electronicstore.view.Branding.createIconButton("⏻", "Logout", 12, "#FF6B6B");
         logoutButton.setOnAction(e -> logout());
 
-        topBar.getChildren().addAll(branding, titleLabel, spacer, resetButton, logoutButton);
+        topBar.getChildren().addAll(branding, titleLabel, spacer, logoutButton);
         mainLayout.setTop(topBar);
 
         VBox contentLayout = new VBox(15);
-        contentLayout.getStyleClass().add("vbox");
-        contentLayout.setPadding(new Insets(20));
-
-        
+        // ensure cashier has loaded inventory and today's bills
+        try {
+            cashier.loadInventory();
+            cashier.loadTodayBills();
+        } catch (Exception ignored) {}
         HBox itemSection = new HBox(15);
         itemSection.getStyleClass().add("hbox");
         itemSection.getStyleClass().add("card");
@@ -98,8 +92,31 @@ public class CashierDashboard {
         quantityField.getStyleClass().add("text-field");
 
         Button addItemButton = new Button("Add Item");
-        addItemButton.getStyleClass().add("button");
-        addItemButton.getStyleClass().add("success");
+        addItemButton.getStyleClass().addAll("button", "success");
+        addItemButton.setOnAction(e -> {
+            String itemId = itemSearchField.getText().trim();
+            int qty = 1;
+            try {
+                qty = Integer.parseInt(quantityField.getText().trim());
+            } catch (NumberFormatException ex) {
+                // keep default
+            }
+            try {
+                boolean added = controller.addItemToBill(itemId, qty);
+                if (added) {
+                    updateBillTable();
+                    updateTotal();
+                    itemSearchField.clear();
+                    quantityField.clear();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.WARNING, "Item not found.", ButtonType.OK);
+                    alert.showAndWait();
+                }
+            } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK);
+                alert.showAndWait();
+            }
+        });
 
         itemSection.getChildren().addAll(itemIdLabel, itemSearchField, qtyLabel, quantityField, addItemButton);
 
@@ -108,7 +125,6 @@ public class CashierDashboard {
         billTable.getStyleClass().add("table-view");
         billData = FXCollections.observableArrayList();
         billTable.setItems(billData);
-        billTable.setPrefHeight(200);
 
         TableColumn<BillItem, String> itemNameCol = new TableColumn<>("Item Name");
         itemNameCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
@@ -128,12 +144,21 @@ public class CashierDashboard {
         deleteCol.setCellFactory(param -> new TableCell<BillItem, Void>() {
             private final Button deleteButton = new Button("Delete");
             {
+                deleteButton.getStyleClass().addAll("button", "danger");
                 deleteButton.setOnAction(event -> {
-                    BillItem item = getTableView().getItems().get(getIndex());
-                    billData.remove(item);
+                    BillItem bi = getTableView().getItems().get(getIndex());
+                    // restore quantity to inventory item
+                    if (bi != null && bi.getItem() != null) {
+                        bi.getItem().setQuantity(bi.getItem().getQuantity() + bi.getQuantity());
+                    }
+                    billData.remove(bi);
+                    if (cashier.getCurrentBill() != null) {
+                        cashier.getCurrentBill().getItems().remove(bi);
+                    }
                     updateTotal();
                 });
             }
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -153,8 +178,7 @@ public class CashierDashboard {
         totalLabel.getStyleClass().add("success");
 
         Button generateBillButton = new Button("Generate Bill");
-        generateBillButton.getStyleClass().add("button");
-        generateBillButton.getStyleClass().add("success");
+        generateBillButton.getStyleClass().addAll("button", "primary");
         generateBillButton.setOnAction(e -> {
             Bill generatedBill = controller.generateBill();
             if (generatedBill != null) {
@@ -272,20 +296,7 @@ public class CashierDashboard {
         totalLabel.setText("Total: $" + String.format("%.2f", total));
     }
 
-    private void resetDashboard() {
-        
-        billData.clear();
-        totalLabel.setText("Total: $0.00");
-
-        
-        itemSearchField.clear();
-        quantityField.clear();
-
-        
-        todayBillsData.clear();
-        todayBillsData.addAll(cashier.viewTodayBills());
-        billsCountLabel.setText("Total Bills Today: " + cashier.getTotalBillsCount());
-    }
+    // resetDashboard removed — reset functionality is no longer available via UI
 
     private void logout() {
         
