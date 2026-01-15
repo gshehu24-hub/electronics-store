@@ -264,7 +264,6 @@ public class ManagerDashboard {
                     Item newItem = new Item(IDGenerator.generateItemID(), name, category, supplier, sector,
                                             purchaseDate, purchasePrice, sellingPrice, quantity);
                     controller.addItem(newItem);
-                    sector.getItems().add(newItem);
                     itemData.add(newItem);
                     return addButtonType;
                 } catch (Exception e) {
