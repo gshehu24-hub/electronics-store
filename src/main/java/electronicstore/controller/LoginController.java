@@ -18,9 +18,14 @@ public class LoginController {
     }
 
     private void ensureDefaultAdmin() {
-        boolean adminExists = users.stream().anyMatch(user -> user.getUsername().equals("admin"));
+        boolean adminExists = false;
+        for (User user : users) {
+            if (user.getUsername().equals("admin")) {
+                adminExists = true;
+                break;
+            }
+        }
         if (!adminExists) {
-            
             Administrator admin = new Administrator("admin", "admin123", "Default Admin",
                     LocalDate.of(1980, 1, 1), "1234567890", "admin@store.com", 5000.0);
             users.add(admin);

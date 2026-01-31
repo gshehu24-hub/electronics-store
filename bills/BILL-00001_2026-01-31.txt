@@ -1,0 +1,13 @@
+================================
+    Inventa
+================================
+Bill Number: BILL-00001
+Date: 2026-01-31
+Time: 02:00:46
+Cashier: ikopaci
+
+Items:
+1. HP NOTEBOOK Z - Qty: 5 - Price: $15.00 - Subtotal: $75.00
+
+Total Amount: $75.00
+================================

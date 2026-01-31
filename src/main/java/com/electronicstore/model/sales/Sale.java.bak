@@ -1,5 +1,0 @@
-package com.electronicstore.model.sales;
-
-public class Sale {
-    // placeholder for aggregated sale information
-}

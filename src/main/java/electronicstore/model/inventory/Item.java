@@ -17,8 +17,8 @@ public class Item implements Serializable {
     private double purchasePrice;
     private double sellingPrice;
     private int quantity;
-    private double discountPercent;
-    private int minStockLevel;
+    private double discount;
+    private int minStock;
 
     public Item(String itemID, String name, Category category, Supplier supplier, Sector sector,
                 LocalDate purchaseDate, double purchasePrice, double sellingPrice, int quantity) {
@@ -31,8 +31,8 @@ public class Item implements Serializable {
         this.purchasePrice = purchasePrice;
         this.sellingPrice = sellingPrice;
         this.quantity = quantity;
-        this.discountPercent = 0.0;
-        this.minStockLevel = 3;
+        this.discount = 0.0;
+        this.minStock = 3;
     }
 
     public boolean reduceQuantity(int qty) throws OutOfStockException {
@@ -44,11 +44,11 @@ public class Item implements Serializable {
     }
 
     public void applyDiscount(double percent) {
-        this.discountPercent = percent;
+        this.discount = percent;
     }
 
     public double getFinalPrice() {
-        return sellingPrice * (1 - discountPercent / 100);
+        return sellingPrice * (1 - discount / 100);
     }
 
     public boolean isInStock() {
@@ -56,7 +56,7 @@ public class Item implements Serializable {
     }
 
     public boolean needsRestock() {
-        return quantity <= minStockLevel;
+        return quantity <= minStock;
     }
 
     
@@ -87,9 +87,9 @@ public class Item implements Serializable {
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    public double getDiscountPercent() { return discountPercent; }
-    public void setDiscountPercent(double discountPercent) { this.discountPercent = discountPercent; }
+    public double getDiscount() { return discount; }
+    public void setDiscount(double discount) { this.discount = discount; }
 
-    public int getMinStockLevel() { return minStockLevel; }
-    public void setMinStockLevel(int minStockLevel) { this.minStockLevel = minStockLevel; }
+    public int getMinStock() { return minStock; }
+    public void setMinStock(int minStock) { this.minStock = minStock; }
 }

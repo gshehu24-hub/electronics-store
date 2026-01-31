@@ -13,7 +13,7 @@ public class Supplier implements Serializable {
     private String phoneNumber;
     private String email;
     private String address;
-    private List<Item> productsSupplied;
+    private List<Item> products;
 
     public Supplier(String supplierID, String name, String contactPerson, String phoneNumber,
                     String email, String address) {
@@ -23,11 +23,11 @@ public class Supplier implements Serializable {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.address = address;
-        this.productsSupplied = new ArrayList<>();
+        this.products = new ArrayList<>();
     }
 
     public void addProduct(Item item) {
-        productsSupplied.add(item);
+        products.add(item);
         item.setSupplier(this);
     }
 
@@ -50,6 +50,6 @@ public class Supplier implements Serializable {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public List<Item> getProductsSupplied() { return productsSupplied; }
-    public void setProductsSupplied(List<Item> productsSupplied) { this.productsSupplied = productsSupplied; }
+    public List<Item> getProducts() { return products; }
+    public void setProducts(List<Item> products) { this.products = products; }
 }

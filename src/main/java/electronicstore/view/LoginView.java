@@ -34,64 +34,64 @@ public class LoginView {
         
         VBox mainContainer = new VBox();
         mainContainer.setAlignment(Pos.CENTER);
-        mainContainer.getStyleClass().add("login-container");
+        mainContainer.setStyle("-fx-background: linear-gradient(to bottom right, #667eea, #764ba2);");
 
-        
-        VBox loginForm = new VBox(20);
-        loginForm.setAlignment(Pos.CENTER);
-        loginForm.getStyleClass().add("login-form");
-        loginForm.setMaxWidth(400);
-        loginForm.setMaxHeight(350);
+        VBox loginCard = new VBox(25);
+        loginCard.setAlignment(Pos.CENTER);
+        loginCard.setMaxWidth(420);
+        loginCard.setMaxHeight(450);
+        loginCard.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 10);");
 
-        
         HBox branding = electronicstore.view.Branding.createLargeBranding();
-        branding.getStyleClass().add("login-title");
-
         
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.getStyleClass().add("grid-pane");
-        grid.setHgap(15);
-        grid.setVgap(15);
+        Label welcomeLabel = new Label("Welcome Back");
+        welcomeLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
+        
+        Label subtitleLabel = new Label("Sign in to continue");
+        subtitleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b;");
 
-        Label userNameLabel = new Label("Username:");
-        userNameLabel.getStyleClass().add("label");
-        grid.add(userNameLabel, 0, 0);
+        VBox fieldsBox = new VBox(15);
+        fieldsBox.setAlignment(Pos.CENTER);
 
+        VBox usernameBox = new VBox(8);
+        Label userNameLabel = new Label("Username");
+        userNameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #334155;");
         usernameField = new TextField();
         usernameField.setPromptText("Enter your username");
-        usernameField.getStyleClass().add("text-field");
-        grid.add(usernameField, 1, 0);
+        usernameField.setStyle("-fx-pref-height: 45; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-color: #f8fafc; -fx-font-size: 14px;");
+        usernameField.setPrefWidth(300);
+        usernameBox.getChildren().addAll(userNameLabel, usernameField);
 
-        Label pwLabel = new Label("Password:");
-        pwLabel.getStyleClass().add("label");
-        grid.add(pwLabel, 0, 1);
-
+        VBox passwordBox = new VBox(8);
+        Label pwLabel = new Label("Password");
+        pwLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #334155;");
         passwordField = new PasswordField();
         passwordField.setPromptText("Enter your password");
-        passwordField.getStyleClass().add("text-field");
-        grid.add(passwordField, 1, 1);
+        passwordField.setStyle("-fx-pref-height: 45; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-color: #f8fafc; -fx-font-size: 14px;");
+        passwordField.setPrefWidth(300);
+        passwordBox.getChildren().addAll(pwLabel, passwordField);
 
-        
-        Button loginButton = new Button("Login");
-        loginButton.getStyleClass().addAll("button", "primary");
+        fieldsBox.getChildren().addAll(usernameBox, passwordBox);
+
+        Button loginButton = new Button("Sign In");
+        loginButton.setPrefWidth(300);
+        loginButton.setPrefHeight(45);
+        loginButton.setStyle("-fx-background-color: linear-gradient(to right, #667eea, #764ba2); -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;");
         loginButton.setOnAction(e -> handleLogin());
 
-        
         errorLabel = new Label();
-        errorLabel.getStyleClass().add("label");
-        errorLabel.getStyleClass().add("error");
+        errorLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px;");
 
-        loginForm.getChildren().addAll(branding, grid, loginButton, errorLabel);
-        mainContainer.getChildren().add(loginForm);
+        loginCard.getChildren().addAll(branding, welcomeLabel, subtitleLabel, fieldsBox, loginButton, errorLabel);
+        mainContainer.getChildren().add(loginCard);
 
         Scene scene = new Scene(mainContainer, 600, 500);
 
-        
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         stage.setScene(scene);
         stage.setTitle("Inventa - Login");
+        stage.setMaximized(true);
         stage.show();
     }
 

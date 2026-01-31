@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-  <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="electronicstore.Main"/>
-  <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ElectronicStore"/>
-  <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value=""/>
-  <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="--module-path C:\\path\\to\\javafx-sdk-21\\lib --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base --add-opens=java.base/sun.misc=ALL-UNNAMED -Dprism.order=es2 -Dprism.verbose=false"/>
-  <booleanAttribute key="org.eclipse.jdt.launching.KEEP_ENVIRONMENT" value="true"/>
-</launchConfiguration>

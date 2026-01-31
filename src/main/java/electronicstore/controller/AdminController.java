@@ -14,7 +14,6 @@ public class AdminController {
         try {
             admin.registerEmployee(employee);
         } catch (Exception e) {
-            
             System.err.println("Error adding employee: " + e.getMessage());
         }
     }

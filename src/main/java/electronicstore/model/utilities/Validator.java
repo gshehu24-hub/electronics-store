@@ -27,6 +27,6 @@ public class Validator {
     }
 
     public static boolean validateQuantity(int quantity) {
-        return quantity > 0;
+        return quantity >= 0;
     }
 }

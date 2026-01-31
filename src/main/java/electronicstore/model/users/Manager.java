@@ -2,6 +2,8 @@ package electronicstore.model.users;
 
 import electronicstore.model.exceptions.ItemNotFoundException;
 import electronicstore.model.inventory.*;
+import electronicstore.model.transactions.Bill;
+import electronicstore.model.transactions.BillItem;
 import electronicstore.model.transactions.Statistics;
 import electronicstore.model.utilities.FileManager;
 
@@ -99,9 +101,15 @@ public class Manager extends User {
     }
 
     public void applyDiscount(String itemID, double percent) throws ItemNotFoundException {
+        if (sectors == null) {
+            throw new ItemNotFoundException(itemID);
+        }
         for (Sector sector : sectors) {
+            if (sector == null || sector.getItems() == null) {
+                continue;
+            }
             for (Item item : sector.getItems()) {
-                if (item.getItemID().equals(itemID)) {
+                if (item != null && item.getItemID().equals(itemID)) {
                     item.applyDiscount(percent);
                     saveInventory();
                     return;
@@ -113,15 +121,113 @@ public class Manager extends User {
 
     public List<Item> checkStockAlerts() {
         List<Item> lowStockItems = new ArrayList<>();
+        if (sectors == null) {
+            return lowStockItems;
+        }
         for (Sector sector : sectors) {
-            lowStockItems.addAll(sector.getLowStockItems());
+            if (sector != null) {
+                lowStockItems.addAll(sector.getLowStockItems());
+            }
         }
         return lowStockItems;
     }
 
     public Statistics viewCashierPerformance(String cashierUsername, LocalDate startDate, LocalDate endDate) {
-        
-        return new Statistics(startDate, endDate, cashierUsername);
+        Statistics stats = new Statistics(startDate, endDate, cashierUsername);
+        try {
+            List<Bill> bills = FileManager.loadBills();
+            int totalBills = 0;
+            int totalItems = 0;
+            double totalRevenue = 0.0;
+            
+            for (Bill bill : bills) {
+                if (bill.getCashier().getUsername().equals(cashierUsername) &&
+                    !bill.getBillDate().isBefore(startDate) &&
+                    !bill.getBillDate().isAfter(endDate)) {
+                    totalBills++;
+                    totalRevenue += bill.getTotalAmount();
+                    for (BillItem item : bill.getItems()) {
+                        totalItems += item.getQuantity();
+                    }
+                }
+            }
+            
+            stats.setTotalBills(totalBills);
+            stats.setItemsSold(totalItems);
+            stats.setTotalRevenue(totalRevenue);
+        } catch (Exception e) {
+            System.err.println("Error calculating statistics: " + e.getMessage());
+        }
+        return stats;
+    }
+
+    public List<Bill> getAllBills() {
+        List<Bill> bills = new ArrayList<>();
+        try {
+            bills = FileManager.loadBills();
+        } catch (Exception e) {
+            System.err.println("Error loading bills: " + e.getMessage());
+        }
+        return bills;
+    }
+
+    public List<Bill> getBillsForSector(LocalDate startDate, LocalDate endDate) {
+        List<Bill> sectorBills = new ArrayList<>();
+        try {
+            List<Bill> allBills = FileManager.loadBills();
+            List<User> allUsers = FileManager.loadUsers();
+            
+            List<String> cashierNames = new ArrayList<>();
+            for (User user : allUsers) {
+                if (user instanceof Cashier) {
+                    Cashier cashier = (Cashier) user;
+                    for (Sector cashierSector : cashier.getSectors()) {
+                        for (Sector mySector : sectors) {
+                            if (cashierSector.getSectorID().equals(mySector.getSectorID())) {
+                                cashierNames.add(cashier.getUsername());
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            for (Bill bill : allBills) {
+                if (cashierNames.contains(bill.getCashier().getUsername()) &&
+                    !bill.getBillDate().isBefore(startDate) &&
+                    !bill.getBillDate().isAfter(endDate)) {
+                    sectorBills.add(bill);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading sector bills: " + e.getMessage());
+        }
+        return sectorBills;
+    }
+
+    public List<String> getCashiersInSector() {
+        List<String> cashierUsernames = new ArrayList<>();
+        try {
+            List<User> allUsers = FileManager.loadUsers();
+            for (User user : allUsers) {
+                if (user instanceof Cashier) {
+                    Cashier cashier = (Cashier) user;
+                    for (Sector cashierSector : cashier.getSectors()) {
+                        for (Sector mySector : sectors) {
+                            if (cashierSector.getSectorID().equals(mySector.getSectorID())) {
+                                if (!cashierUsernames.contains(cashier.getUsername())) {
+                                    cashierUsernames.add(cashier.getUsername());
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading cashiers: " + e.getMessage());
+        }
+        return cashierUsernames;
     }
 
     public void addSupplier(Supplier supplier) {
@@ -135,9 +241,15 @@ public class Manager extends User {
     }
 
     public void deleteItem(String itemID) throws ItemNotFoundException {
+        if (sectors == null) {
+            throw new ItemNotFoundException(itemID);
+        }
         for (Sector sector : sectors) {
+            if (sector == null || sector.getItems() == null) {
+                continue;
+            }
             for (Item item : sector.getItems()) {
-                if (item.getItemID().equals(itemID)) {
+                if (item != null && item.getItemID().equals(itemID)) {
                     sector.getItems().remove(item);
                     saveInventory();
                     return;
@@ -165,9 +277,17 @@ public class Manager extends User {
 
     public void saveInventory() {
         try {
+            if (sectors == null) {
+                sectors = new ArrayList<>();
+            }
+            if (suppliers == null) {
+                suppliers = new ArrayList<>();
+            }
             List<Item> allItems = new ArrayList<>();
             for (Sector sector : sectors) {
-                allItems.addAll(sector.getItems());
+                if (sector != null && sector.getItems() != null) {
+                    allItems.addAll(sector.getItems());
+                }
             }
             FileManager.saveItems(allItems);
             FileManager.saveSuppliers(suppliers);
@@ -179,46 +299,29 @@ public class Manager extends User {
 
     public void loadInventory() {
         try {
-            List<Item> items = FileManager.loadItems();
             suppliers = FileManager.loadSuppliers();
             sectors = FileManager.loadSectors();
             
-            
-            java.util.Map<String, Sector> sectorMap = new java.util.HashMap<>();
+            if (suppliers == null) suppliers = new ArrayList<>();
+            if (sectors == null) sectors = new ArrayList<>();
             
             for (Sector s : sectors) {
-                sectorMap.put(s.getSectorID(), s);
-            }
-
-            for (Item item : items) {
-                if (item.getSector() != null) {
-                    String sid = item.getSector().getSectorID();
-                    Sector target = sectorMap.get(sid);
-                    if (target == null) {
-                        
-                        Sector newSector = item.getSector();
-                        if (newSector.getItems() == null) newSector.setItems(new java.util.ArrayList<>());
-                        sectors.add(newSector);
-                        sectorMap.put(newSector.getSectorID(), newSector);
-                        target = newSector;
-                    }
-                    target.getItems().add(item);
-                } else {
-                    
-                    if (sectors.isEmpty()) {
-                        Sector defaultSector = new Sector("SEC-000", "Default", "Default sector");
-                        sectors.add(defaultSector);
-                    }
-                    sectors.get(0).getItems().add(item);
+                if (s.getItems() == null) {
+                    s.setItems(new ArrayList<>());
                 }
-
-                
-                if (item.getSupplier() != null) {
-                    boolean foundSup = false;
-                    for (Supplier s : suppliers) {
-                        if (s.getSupplierID().equals(item.getSupplier().getSupplierID())) { foundSup = true; break; }
+                for (Item item : s.getItems()) {
+                    if (item.getSupplier() != null) {
+                        boolean foundSup = false;
+                        for (Supplier sup : suppliers) {
+                            if (sup.getSupplierID().equals(item.getSupplier().getSupplierID())) {
+                                foundSup = true;
+                                break;
+                            }
+                        }
+                        if (!foundSup) {
+                            suppliers.add(item.getSupplier());
+                        }
                     }
-                    if (!foundSup) suppliers.add(item.getSupplier());
                 }
             }
         } catch (Exception e) {
@@ -227,6 +330,17 @@ public class Manager extends User {
         }
     }
 
-    public List<Sector> getSectors() { return sectors; }
-    public List<Supplier> getSuppliers() { return suppliers; }
+    public List<Sector> getSectors() { 
+        if (sectors == null) {
+            sectors = new ArrayList<>();
+        }
+        return sectors; 
+    }
+    
+    public List<Supplier> getSuppliers() { 
+        if (suppliers == null) {
+            suppliers = new ArrayList<>();
+        }
+        return suppliers; 
+    }
 }

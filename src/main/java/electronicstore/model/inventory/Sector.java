@@ -28,8 +28,11 @@ public class Sector implements Serializable {
 
     public List<Item> getLowStockItems() {
         List<Item> lowStock = new ArrayList<>();
+        if (items == null) {
+            return lowStock;
+        }
         for (Item item : items) {
-            if (item.needsRestock()) {
+            if (item != null && item.needsRestock()) {
                 lowStock.add(item);
             }
         }
@@ -46,7 +49,12 @@ public class Sector implements Serializable {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public List<Item> getItems() { return items; }
+    public List<Item> getItems() { 
+        if (items == null) {
+            items = new ArrayList<>();
+        }
+        return items; 
+    }
     public void setItems(List<Item> items) { this.items = items; }
 
     public List<Manager> getManagers() { return managers; }

@@ -30,7 +30,7 @@ public class Bill implements Serializable {
     }
 
     public void addItem(Item item, int quantity, double price) {
-        BillItem billItem = new BillItem(item, quantity, price, item.getDiscountPercent());
+        BillItem billItem = new BillItem(item, quantity, price, 0);
         items.add(billItem);
         totalAmount += billItem.getSubtotal();
     }
@@ -57,7 +57,7 @@ public class Bill implements Serializable {
             BillItem item = items.get(i);
             sb.append((i + 1)).append(". ").append(item.getItem().getName())
               .append(" - Qty: ").append(item.getQuantity())
-              .append(" - Price: $").append(String.format("%.2f", item.getPriceAtSale()))
+              .append(" - Price: $").append(String.format("%.2f", item.getPrice()))
               .append(" - Subtotal: $").append(String.format("%.2f", item.getSubtotal())).append("\n");
         }
         sb.append("\nTotal Amount: $").append(String.format("%.2f", totalAmount)).append("\n");

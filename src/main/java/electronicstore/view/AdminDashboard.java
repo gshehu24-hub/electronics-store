@@ -27,12 +27,12 @@ public class AdminDashboard {
     private Stage stage;
     private AdminController controller;
     private Administrator admin;
-    private TableView<User> employeeTable;
-    private ObservableList<User> employeeData;
-    private Label totalIncomeLabel;
-    private Label totalCostsLabel;
-    private Label netProfitLabel;
-    private Label totalSalariesLabel;
+    private TableView<User> userTable;
+    private ObservableList<User> userData;
+    private Label incomeLabel;
+    private Label costsLabel;
+    private Label profitLabel;
+    private Label salaryLabel;
 
     public AdminDashboard(Stage stage, Administrator admin) {
         this.stage = stage;
@@ -73,18 +73,19 @@ public class AdminDashboard {
         centerLayout.setPadding(new Insets(20));
 
         
-        VBox employeeSection = new VBox(15);
-        employeeSection.getStyleClass().add("card");
+        VBox userSection = new VBox(15);
+        userSection.getStyleClass().add("card");
 
-        Label employeeLabel = new Label("Employee Management");
-        employeeLabel.getStyleClass().add("label");
-        employeeLabel.getStyleClass().add("header");
+        Label userLabel = new Label("Employee Management");
+        userLabel.getStyleClass().add("label");
+        userLabel.getStyleClass().add("header");
 
-        employeeTable = new TableView<>();
-        employeeTable.getStyleClass().add("table-view");
-        employeeData = FXCollections.observableArrayList(admin.getEmployeeList());
-        employeeTable.setItems(employeeData);
-        employeeTable.setPrefHeight(250);
+        userTable = new TableView<>();
+        userTable.getStyleClass().add("table-view");
+        userTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        userData = FXCollections.observableArrayList(admin.getEmployeeList() != null ? admin.getEmployeeList() : new java.util.ArrayList<>());
+        userTable.setItems(userData);
+        userTable.setPrefHeight(250);
 
         TableColumn<User, String> usernameCol = new TableColumn<>("Username");
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -102,10 +103,26 @@ public class AdminDashboard {
         salaryCol.setCellValueFactory(new PropertyValueFactory<>("salary"));
         salaryCol.setPrefWidth(100);
 
-        employeeTable.getColumns().addAll(usernameCol, nameCol, accessLevelCol, salaryCol);
+        TableColumn<User, Boolean> activeCol = new TableColumn<>("Active");
+        activeCol.setCellValueFactory(new PropertyValueFactory<>("active"));
+        activeCol.setPrefWidth(70);
+        activeCol.setCellFactory(col -> new TableCell<User, Boolean>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item ? "Yes" : "No");
+                    setStyle(item ? "-fx-text-fill: #28a745;" : "-fx-text-fill: #dc3545;");
+                }
+            }
+        });
 
-        HBox employeeButtons = new HBox(15);
-        employeeButtons.getStyleClass().add("hbox");
+        userTable.getColumns().addAll(usernameCol, nameCol, accessLevelCol, salaryCol, activeCol);
+
+        HBox userButtons = new HBox(15);
+        userButtons.getStyleClass().add("hbox");
 
         Button addButton = new Button("Add Employee");
         addButton.getStyleClass().addAll("button", "primary", "success");
@@ -119,21 +136,25 @@ public class AdminDashboard {
         deleteButton.getStyleClass().addAll("button", "danger");
         deleteButton.setOnAction(e -> deleteSelectedEmployee());
 
-        employeeButtons.getChildren().addAll(addButton, modifyButton, deleteButton);
+        Button toggleActiveButton = new Button("Toggle Active");
+        toggleActiveButton.getStyleClass().addAll("button", "warning");
+        toggleActiveButton.setOnAction(e -> toggleEmployeeActive());
 
-        employeeSection.getChildren().addAll(employeeLabel, employeeTable, employeeButtons);
+        userButtons.getChildren().addAll(addButton, modifyButton, deleteButton, toggleActiveButton);
+
+        userSection.getChildren().addAll(userLabel, userTable, userButtons);
 
         
         Separator separator = new Separator();
         separator.getStyleClass().add("separator");
 
         
-        VBox financialSection = new VBox(15);
-        financialSection.getStyleClass().add("card");
+        VBox financeSection = new VBox(15);
+        financeSection.getStyleClass().add("card");
 
-        Label financialLabel = new Label("Financial Report");
-        financialLabel.getStyleClass().add("label");
-        financialLabel.getStyleClass().add("header");
+        Label financeLabel = new Label("Financial Report");
+        financeLabel.getStyleClass().add("label");
+        financeLabel.getStyleClass().add("header");
 
         HBox dateBox = new HBox(15);
         dateBox.getStyleClass().add("hbox");
@@ -161,33 +182,37 @@ public class AdminDashboard {
         resultsBox.getStyleClass().add("hbox");
         resultsBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-        totalIncomeLabel = new Label("Total Income: $0.00");
-        totalIncomeLabel.getStyleClass().add("label");
-        totalIncomeLabel.getStyleClass().add("success");
+        incomeLabel = new Label("Total Income: $0.00");
+        incomeLabel.getStyleClass().add("label");
+        incomeLabel.getStyleClass().add("success");
 
-        totalCostsLabel = new Label("Total Costs: $0.00");
-        totalCostsLabel.getStyleClass().add("label");
-        totalCostsLabel.getStyleClass().add("error");
+        costsLabel = new Label("Total Costs: $0.00");
+        costsLabel.getStyleClass().add("label");
+        costsLabel.getStyleClass().add("error");
 
-        netProfitLabel = new Label("Net Profit: $0.00");
-        netProfitLabel.getStyleClass().add("label");
-        netProfitLabel.getStyleClass().add("success");
+        profitLabel = new Label("Net Profit: $0.00");
+        profitLabel.getStyleClass().add("label");
+        profitLabel.getStyleClass().add("success");
 
-        totalSalariesLabel = new Label("Total Salaries: $0.00");
-        totalSalariesLabel.getStyleClass().add("label");
-        totalSalariesLabel.getStyleClass().add("warning");
+        salaryLabel = new Label("Total Salaries: $0.00");
+        salaryLabel.getStyleClass().add("label");
+        salaryLabel.getStyleClass().add("warning");
 
-        resultsBox.getChildren().addAll(totalIncomeLabel, totalCostsLabel, netProfitLabel, totalSalariesLabel);
+        resultsBox.getChildren().addAll(incomeLabel, costsLabel, profitLabel, salaryLabel);
 
         generateReportButton.setOnAction(e -> {
             LocalDate start = startDatePicker.getValue();
             LocalDate end = endDatePicker.getValue();
             if (start != null && end != null) {
                 Report report = admin.generateFinancialReport(start, end);
-                totalIncomeLabel.setText("Total Income: $" + String.format("%.2f", report.getTotalIncome()));
-                totalCostsLabel.setText("Total Costs: $" + String.format("%.2f", report.getTotalCosts()));
-                netProfitLabel.setText("Net Profit: $" + String.format("%.2f", report.getNetProfit()));
-                totalSalariesLabel.setText("Total Salaries: $" + String.format("%.2f", admin.getEmployeeList().stream().mapToDouble(User::getSalary).sum()));
+                incomeLabel.setText("Total Income: $" + String.format("%.2f", report.getTotalIncome()));
+                costsLabel.setText("Total Costs: $" + String.format("%.2f", report.getTotalCosts()));
+                profitLabel.setText("Net Profit: $" + String.format("%.2f", report.getNetProfit()));
+                double totalSalaries = 0.0;
+                for (User u : admin.getEmployeeList()) {
+                    totalSalaries += u.getSalary();
+                }
+                salaryLabel.setText("Total Salaries: $" + String.format("%.2f", totalSalaries));
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setContentText("Please select both start and end dates.");
@@ -195,9 +220,9 @@ public class AdminDashboard {
             }
         });
 
-        financialSection.getChildren().addAll(financialLabel, dateBox, resultsBox);
+        financeSection.getChildren().addAll(financeLabel, dateBox, resultsBox);
 
-        centerLayout.getChildren().addAll(employeeSection, separator, financialSection);
+        centerLayout.getChildren().addAll(userSection, separator, financeSection);
 
         mainLayout.setCenter(centerLayout);
 
@@ -208,6 +233,7 @@ public class AdminDashboard {
 
         stage.setScene(scene);
         stage.setTitle("Administrator Dashboard");
+        stage.setMaximized(true);
         stage.setResizable(true);
     }
 
@@ -315,7 +341,7 @@ public class AdminDashboard {
                     }
 
                     controller.addEmployee(newUser);
-                    employeeData.add(newUser);
+                    userData.add(newUser);
                     return addButtonType;
                 } catch (Exception e) {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -330,7 +356,7 @@ public class AdminDashboard {
     }
 
     private void showModifyEmployeeDialog() {
-        User selected = employeeTable.getSelectionModel().getSelectedItem();
+        User selected = userTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setContentText("Please select an employee to modify.");
@@ -360,7 +386,7 @@ public class AdminDashboard {
         TextField emailField = new TextField(selected.getEmail());
         TextField salaryField = new TextField(String.valueOf(selected.getSalary()));
         ComboBox<AccessLevel> accessLevelBox = new ComboBox<>();
-        accessLevelBox.setItems(FXCollections.observableArrayList(AccessLevel.MANAGER, AccessLevel.CASHIER));
+        accessLevelBox.setItems(FXCollections.observableArrayList(AccessLevel.ADMINISTRATOR, AccessLevel.MANAGER, AccessLevel.CASHIER));
         accessLevelBox.setValue(selected.getAccessLevel());
 
         grid.add(new Label("Username:"), 0, 0);
@@ -420,15 +446,17 @@ public class AdminDashboard {
                     }
 
                     User updatedUser = null;
-                    if (level == AccessLevel.MANAGER) {
+                    if (level == AccessLevel.ADMINISTRATOR) {
+                        updatedUser = new electronicstore.model.users.Administrator(selected.getUsername(), password, name, dob, phone, email, salary);
+                    } else if (level == AccessLevel.MANAGER) {
                         updatedUser = new electronicstore.model.users.Manager(selected.getUsername(), password, name, dob, phone, email, salary);
                     } else if (level == AccessLevel.CASHIER) {
                         updatedUser = new electronicstore.model.users.Cashier(selected.getUsername(), password, name, dob, phone, email, salary);
                     }
 
                     controller.modifyEmployee(selected.getUsername(), updatedUser);
-                    int index = employeeData.indexOf(selected);
-                    employeeData.set(index, updatedUser);
+                    int index = userData.indexOf(selected);
+                    userData.set(index, updatedUser);
                     return modifyButtonType;
                 } catch (Exception e) {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -443,17 +471,33 @@ public class AdminDashboard {
     }
 
     private void deleteSelectedEmployee() {
-        User selected = employeeTable.getSelectionModel().getSelectedItem();
+        User selected = userTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
             admin.deleteEmployee(selected.getUsername());
-            employeeData.remove(selected);
+            userData.remove(selected);
         }
     }
 
-    // resetDashboard removed — manual reset no longer exposed in UI
+    private void toggleEmployeeActive() {
+        User selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Please select an employee to toggle.");
+            alert.showAndWait();
+            return;
+        }
+
+        boolean newStatus = !selected.isActive();
+        admin.setEmployeeActive(selected.getUsername(), newStatus);
+        selected.setActive(newStatus);
+        userTable.refresh();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText("Employee " + selected.getUsername() + " is now " + (newStatus ? "ACTIVE" : "INACTIVE"));
+        alert.showAndWait();
+    }
 
     private void logout() {
-        
         LoginController controller = new LoginController();
         new LoginView(stage, controller);
     }

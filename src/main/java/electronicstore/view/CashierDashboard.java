@@ -27,11 +27,8 @@ public class CashierDashboard {
     private TableView<BillItem> billTable;
     private ObservableList<BillItem> billData;
     private Label totalLabel;
-    private TableView<Bill> todayBillsTable;
-    private ObservableList<Bill> todayBillsData;
-    private Label billsCountLabel;
-    private TextField itemSearchField;
-    private TextField quantityField;
+    private TextField itemField;
+    private TextField qtyField;
 
     public CashierDashboard(Stage stage, Cashier cashier) {
         this.stage = stage;
@@ -67,7 +64,6 @@ public class CashierDashboard {
         mainLayout.setTop(topBar);
 
         VBox contentLayout = new VBox(15);
-        // ensure cashier has loaded inventory and today's bills
         try {
             cashier.loadInventory();
             cashier.loadTodayBills();
@@ -80,34 +76,33 @@ public class CashierDashboard {
         Label itemIdLabel = new Label("Item ID:");
         itemIdLabel.getStyleClass().add("label");
 
-        itemSearchField = new TextField();
-        itemSearchField.setPromptText("Enter Item ID");
-        itemSearchField.getStyleClass().add("text-field");
+        itemField = new TextField();
+        itemField.setPromptText("Enter Item ID");
+        itemField.getStyleClass().add("text-field");
 
         Label qtyLabel = new Label("Quantity:");
         qtyLabel.getStyleClass().add("label");
 
-        quantityField = new TextField();
-        quantityField.setPromptText("Quantity");
-        quantityField.getStyleClass().add("text-field");
+        qtyField = new TextField();
+        qtyField.setPromptText("Quantity");
+        qtyField.getStyleClass().add("text-field");
 
         Button addItemButton = new Button("Add Item");
         addItemButton.getStyleClass().addAll("button", "success");
         addItemButton.setOnAction(e -> {
-            String itemId = itemSearchField.getText().trim();
+            String itemId = itemField.getText().trim();
             int qty = 1;
             try {
-                qty = Integer.parseInt(quantityField.getText().trim());
+                qty = Integer.parseInt(qtyField.getText().trim());
             } catch (NumberFormatException ex) {
-                // keep default
             }
             try {
                 boolean added = controller.addItemToBill(itemId, qty);
                 if (added) {
                     updateBillTable();
                     updateTotal();
-                    itemSearchField.clear();
-                    quantityField.clear();
+                    itemField.clear();
+                    qtyField.clear();
                 } else {
                     Alert alert = new Alert(Alert.AlertType.WARNING, "Item not found.", ButtonType.OK);
                     alert.showAndWait();
@@ -118,11 +113,12 @@ public class CashierDashboard {
             }
         });
 
-        itemSection.getChildren().addAll(itemIdLabel, itemSearchField, qtyLabel, quantityField, addItemButton);
+        itemSection.getChildren().addAll(itemIdLabel, itemField, qtyLabel, qtyField, addItemButton);
 
         
         billTable = new TableView<>();
         billTable.getStyleClass().add("table-view");
+        billTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         billData = FXCollections.observableArrayList();
         billTable.setItems(billData);
 
@@ -134,7 +130,7 @@ public class CashierDashboard {
         qtyCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
         TableColumn<BillItem, Double> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(new PropertyValueFactory<>("priceAtSale"));
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         TableColumn<BillItem, Double> subtotalCol = new TableColumn<>("Subtotal");
         subtotalCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleDoubleProperty(
@@ -147,7 +143,6 @@ public class CashierDashboard {
                 deleteButton.getStyleClass().addAll("button", "danger");
                 deleteButton.setOnAction(event -> {
                     BillItem bi = getTableView().getItems().get(getIndex());
-                    // restore quantity to inventory item
                     if (bi != null && bi.getItem() != null) {
                         bi.getItem().setQuantity(bi.getItem().getQuantity() + bi.getQuantity());
                     }
@@ -182,38 +177,19 @@ public class CashierDashboard {
         generateBillButton.setOnAction(e -> {
             Bill generatedBill = controller.generateBill();
             if (generatedBill != null) {
-                updateTodayBillsTable();
                 billData.clear();
                 totalLabel.setText("Total: $0.00");
                 showBillWindow(generatedBill);
             }
         });
 
-        
-        todayBillsTable = new TableView<>();
-        todayBillsTable.getStyleClass().add("table-view");
-        todayBillsData = FXCollections.observableArrayList(cashier.viewTodayBills());
-        todayBillsTable.setItems(todayBillsData);
-        todayBillsTable.setPrefHeight(200);
+        HBox bottomRow = new HBox();
+        bottomRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Region bottomSpacer = new Region();
+        HBox.setHgrow(bottomSpacer, Priority.ALWAYS);
+        bottomRow.getChildren().addAll(totalLabel, bottomSpacer, generateBillButton);
 
-        TableColumn<Bill, String> billNumCol = new TableColumn<>("Bill Number");
-        billNumCol.setCellValueFactory(new PropertyValueFactory<>("billNumber"));
-
-        TableColumn<Bill, Double> billTotalCol = new TableColumn<>("Total");
-        billTotalCol.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
-
-        todayBillsTable.getColumns().addAll(billNumCol, billTotalCol);
-
-        billsCountLabel = new Label("Total Bills Today: " + cashier.getTotalBillsCount());
-        billsCountLabel.getStyleClass().add("label");
-        billsCountLabel.getStyleClass().add("header");
-
-        Label todaysBillsLabel = new Label("Today's Bills:");
-        todaysBillsLabel.getStyleClass().add("label");
-        todaysBillsLabel.getStyleClass().add("header");
-
-        contentLayout.getChildren().addAll(itemSection, billTable, totalLabel, generateBillButton,
-                                        todaysBillsLabel, todayBillsTable, billsCountLabel);
+        contentLayout.getChildren().addAll(itemSection, billTable, bottomRow);
 
         mainLayout.setCenter(contentLayout);
 
@@ -224,17 +200,13 @@ public class CashierDashboard {
 
         stage.setScene(scene);
         stage.setTitle("Cashier Dashboard");
+        stage.setMaximized(true);
     }
 
     private void updateBillTable() {
         if (cashier.getCurrentBill() != null) {
             billData.setAll(cashier.getCurrentBill().getItems());
         }
-    }
-
-    private void updateTodayBillsTable() {
-        todayBillsData.setAll(cashier.viewTodayBills());
-        billsCountLabel.setText("Total Bills Today: " + cashier.getTotalBillsCount());
     }
 
     private void showBillWindow(Bill bill) {
@@ -265,7 +237,7 @@ public class CashierDashboard {
         qtyCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         
         TableColumn<BillItem, Double> priceCol = new TableColumn<>("Price");
-        priceCol.setCellValueFactory(new PropertyValueFactory<>("priceAtSale"));
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
         
         TableColumn<BillItem, Double> subtotalCol = new TableColumn<>("Subtotal");
         subtotalCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleDoubleProperty(
@@ -292,11 +264,12 @@ public class CashierDashboard {
     }
 
     private void updateTotal() {
-        double total = billData.stream().mapToDouble(BillItem::getSubtotal).sum();
+        double total = 0.0;
+        for (BillItem item : billData) {
+            total += item.getSubtotal();
+        }
         totalLabel.setText("Total: $" + String.format("%.2f", total));
     }
-
-    // resetDashboard removed — reset functionality is no longer available via UI
 
     private void logout() {
         

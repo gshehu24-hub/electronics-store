@@ -27,8 +27,6 @@ public class IDGenerator {
     public static String generateItemID() {
         lastItemID++;
         saveCounters();
-        // Return a short numeric ID for items (00-99) without the "ITEM-" prefix.
-        // We use modulo 100 to keep IDs within 0-99 as requested.
         int shortId = lastItemID % 100;
         return String.format("%02d", shortId);
     }

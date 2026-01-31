@@ -9,32 +9,32 @@ public class Statistics implements Serializable {
     private LocalDate startDate;
     private LocalDate endDate;
     private int totalBills;
-    private int totalItemsSold;
+    private int itemsSold;
     private double totalRevenue;
-    private double averageBillAmount;
-    private String cashierUsername;
+    private double avgBill;
+    private String cashier;
 
-    public Statistics(LocalDate startDate, LocalDate endDate, String cashierUsername) {
+    public Statistics(LocalDate startDate, LocalDate endDate, String cashier) {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.cashierUsername = cashierUsername;
+        this.cashier = cashier;
         this.totalBills = 0;
-        this.totalItemsSold = 0;
+        this.itemsSold = 0;
         this.totalRevenue = 0.0;
-        this.averageBillAmount = 0.0;
+        this.avgBill = 0.0;
     }
 
     public double calculateAverageBillAmount() {
         if (totalBills > 0) {
-            averageBillAmount = totalRevenue / totalBills;
+            avgBill = totalRevenue / totalBills;
         }
-        return averageBillAmount;
+        return avgBill;
     }
 
     public String generateReport() {
-        return "Statistics for " + cashierUsername + " from " + startDate + " to " + endDate +
+        return "Statistics for " + cashier + " from " + startDate + " to " + endDate +
                "\nTotal Bills: " + totalBills +
-               "\nTotal Items Sold: " + totalItemsSold +
+               "\nTotal Items Sold: " + itemsSold +
                "\nTotal Revenue: $" + String.format("%.2f", totalRevenue) +
                "\nAverage Bill Amount: $" + String.format("%.2f", calculateAverageBillAmount());
     }
@@ -49,15 +49,15 @@ public class Statistics implements Serializable {
     public int getTotalBills() { return totalBills; }
     public void setTotalBills(int totalBills) { this.totalBills = totalBills; }
 
-    public int getTotalItemsSold() { return totalItemsSold; }
-    public void setTotalItemsSold(int totalItemsSold) { this.totalItemsSold = totalItemsSold; }
+    public int getItemsSold() { return itemsSold; }
+    public void setItemsSold(int itemsSold) { this.itemsSold = itemsSold; }
 
     public double getTotalRevenue() { return totalRevenue; }
     public void setTotalRevenue(double totalRevenue) { this.totalRevenue = totalRevenue; }
 
-    public double getAverageBillAmount() { return averageBillAmount; }
-    public void setAverageBillAmount(double averageBillAmount) { this.averageBillAmount = averageBillAmount; }
+    public double getAvgBill() { return avgBill; }
+    public void setAverageBillAmount(double avgBill) { this.avgBill = avgBill; }
 
-    public String getCashierUsername() { return cashierUsername; }
-    public void setCashierUsername(String cashierUsername) { this.cashierUsername = cashierUsername; }
+    public String getCashier() { return cashier; }
+    public void setCashier(String cashier) { this.cashier = cashier; }
 }

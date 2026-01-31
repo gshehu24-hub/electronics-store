@@ -1,8 +1,0 @@
-package com.electronicstore.model.reports;
-
-public class FinancialReport implements Report {
-    @Override
-    public void generate() {
-        
-    }
-}

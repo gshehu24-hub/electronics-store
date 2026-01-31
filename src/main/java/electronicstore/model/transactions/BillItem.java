@@ -9,23 +9,23 @@ public class BillItem implements Serializable {
 
     private Item item;
     private int quantity;
-    private double priceAtSale;
-    private double discountApplied;
+    private double price;
+    private double discount;
 
-    public BillItem(Item item, int quantity, double priceAtSale, double discountApplied) {
+    public BillItem(Item item, int quantity, double price, double discount) {
         this.item = item;
         this.quantity = quantity;
-        this.priceAtSale = priceAtSale;
-        this.discountApplied = discountApplied;
+        this.price = price;
+        this.discount = discount;
     }
 
     public double getSubtotal() {
-        return quantity * priceAtSale * (1 - discountApplied / 100);
+        return quantity * price * (1 - discount / 100);
     }
 
     
     public Item getItem() { return item; }
     public int getQuantity() { return quantity; }
-    public double getPriceAtSale() { return priceAtSale; }
-    public double getDiscountApplied() { return discountApplied; }
+    public double getPrice() { return price; }
+    public double getDiscount() { return discount; }
 }

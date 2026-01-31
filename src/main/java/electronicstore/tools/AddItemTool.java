@@ -37,17 +37,27 @@ public class AddItemTool {
                 Item newItem = new Item(targetId, "Sample Item 3", cat, supp, sect,
                         LocalDate.now(), 10.0, 15.0, 10);
 
-                
-                boolean supExists = suppliers.stream().anyMatch(s -> s.getSupplierID().equals(supp.getSupplierID()));
+                boolean supExists = false;
+                for (Supplier s : suppliers) {
+                    if (s.getSupplierID().equals(supp.getSupplierID())) {
+                        supExists = true;
+                        break;
+                    }
+                }
                 if (!supExists) suppliers.add(supp);
 
-                boolean sectExists = sectors.stream().anyMatch(s -> s.getSectorID().equals(sect.getSectorID()));
+                boolean sectExists = false;
+                for (Sector s : sectors) {
+                    if (s.getSectorID().equals(sect.getSectorID())) {
+                        sectExists = true;
+                        break;
+                    }
+                }
                 if (!sectExists) sectors.add(sect);
 
                 items.add(newItem);
             }
 
-            
             FileManager.saveItems(items);
             FileManager.saveSuppliers(suppliers);
             FileManager.saveSectors(sectors);

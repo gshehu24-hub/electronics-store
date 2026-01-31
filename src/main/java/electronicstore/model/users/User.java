@@ -63,7 +63,13 @@ public abstract class User implements Serializable {
     public void setSalary(double salary) { this.salary = salary; }
 
     public AccessLevel getAccessLevel() { return accessLevel; }
-    public void setAccessLevel(AccessLevel accessLevel) { this.accessLevel = accessLevel; }
+    public void setAccessLevel(AccessLevel accessLevel) {
+        if (this instanceof Administrator) {
+            this.accessLevel = AccessLevel.ADMINISTRATOR;
+            return;
+        }
+        this.accessLevel = accessLevel;
+    }
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }

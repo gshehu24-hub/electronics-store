@@ -6,6 +6,8 @@ import electronicstore.model.inventory.Category;
 import electronicstore.model.inventory.Item;
 import electronicstore.model.inventory.Sector;
 import electronicstore.model.inventory.Supplier;
+import electronicstore.model.transactions.Bill;
+import electronicstore.model.transactions.Statistics;
 import electronicstore.model.users.Manager;
 import electronicstore.model.utilities.IDGenerator;
 import electronicstore.model.utilities.Validator;
@@ -25,12 +27,18 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManagerDashboard {
     private Stage stage;
     private ManagerController controller;
     private Manager manager;
     private TabPane tabPane;
+    private TableView<Item> itemTable;
+    private ObservableList<Item> itemData;
+    private TableView<Supplier> supplierTable;
+    private ObservableList<Supplier> supplierData;
 
     public ManagerDashboard(Stage stage, Manager manager) {
         this.stage = stage;
@@ -79,23 +87,15 @@ public class ManagerDashboard {
         VBox suppliersLayout = createSuppliersTab();
         suppliersTab.setContent(suppliersLayout);
 
-        
-        Tab alertsTab = new Tab("Stock Alerts");
-        VBox alertsLayout = createAlertsTab();
-        alertsTab.setContent(alertsLayout);
+        Tab billsTab = new Tab("Bills");
+        VBox billsLayout = createBillsTab();
+        billsTab.setContent(billsLayout);
 
-        
-        Tab statsTab = new Tab("Statistics");
-        VBox statsLayout = createStatisticsTab();
-        statsTab.setContent(statsLayout);
-
-        
         inventoryTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
         suppliersTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
-        alertsTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
-        statsTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
+        billsTab.setGraphic(electronicstore.view.Branding.createSmallIcon());
 
-        tabPane.getTabs().addAll(inventoryTab, suppliersTab, alertsTab, statsTab);
+        tabPane.getTabs().addAll(inventoryTab, suppliersTab, billsTab);
         mainLayout.setCenter(tabPane);
 
         Scene scene = new Scene(mainLayout, 900, 700);
@@ -105,6 +105,7 @@ public class ManagerDashboard {
 
         stage.setScene(scene);
         stage.setTitle("Manager Dashboard");
+        stage.setMaximized(true);
     }
 
     private VBox createInventoryTab() {
@@ -112,10 +113,19 @@ public class ManagerDashboard {
         layout.getStyleClass().add("vbox");
         layout.setPadding(new Insets(20));
 
-        TableView<Item> itemTable = new TableView<>();
+        itemTable = new TableView<>();
         itemTable.getStyleClass().add("table-view");
-        ObservableList<Item> itemData = FXCollections.observableArrayList(manager.getSectors().stream()
-                .flatMap(sector -> sector.getItems().stream()).toList());
+        itemTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        List<Item> allItems = new ArrayList<>();
+        if (manager.getSectors() != null) {
+            for (Sector sector : manager.getSectors()) {
+                if (sector != null && sector.getItems() != null) {
+                    allItems.addAll(sector.getItems());
+                }
+            }
+        }
+        itemData = FXCollections.observableArrayList(allItems);
         itemTable.setItems(itemData);
         itemTable.setPrefHeight(350);
 
@@ -136,7 +146,7 @@ public class ManagerDashboard {
         priceCol.setPrefWidth(80);
 
         TableColumn<Item, Double> discountCol = new TableColumn<>("Discount %");
-        discountCol.setCellValueFactory(new PropertyValueFactory<>("discountPercent"));
+        discountCol.setCellValueFactory(new PropertyValueFactory<>("discount"));
         discountCol.setPrefWidth(100);
 
         itemTable.getColumns().addAll(idCol, nameCol, qtyCol, priceCol, discountCol);
@@ -233,29 +243,40 @@ public class ManagerDashboard {
                         throw new IllegalArgumentException("Invalid input");
                     }
 
-                    
-                    Category category = manager.getSectors().stream()
-                        .flatMap(s -> s.getItems().stream())
-                        .map(Item::getCategory)
-                        .filter(c -> c.getCategoryName().equals(catName))
-                        .findFirst().orElse(null);
+                    Category category = null;
+                    for (Sector s : manager.getSectors()) {
+                        for (Item item : s.getItems()) {
+                            if (item.getCategory() != null && item.getCategory().getCategoryName().equals(catName)) {
+                                category = item.getCategory();
+                                break;
+                            }
+                        }
+                        if (category != null) break;
+                    }
                     if (category == null) {
                         category = new Category(IDGenerator.generateCategoryID(), catName, "");
                     }
 
-                    
-                    Supplier supplier = manager.getSuppliers().stream()
-                        .filter(s -> s.getName().equals(supName))
-                        .findFirst().orElse(null);
+                    Supplier supplier = null;
+                    for (Supplier s : manager.getSuppliers()) {
+                        if (s.getName().equals(supName)) {
+                            supplier = s;
+                            break;
+                        }
+                    }
                     if (supplier == null) {
                         supplier = new Supplier(IDGenerator.generateSupplierID(), supName, "", "", "", "");
                         manager.addSupplier(supplier);
+                        supplierData.add(supplier);
                     }
 
-                    
-                    Sector sector = manager.getSectors().stream()
-                        .filter(s -> s.getSectorName().equals(secName))
-                        .findFirst().orElse(null);
+                    Sector sector = null;
+                    for (Sector s : manager.getSectors()) {
+                        if (s.getSectorName().equals(secName)) {
+                            sector = s;
+                            break;
+                        }
+                    }
                     if (sector == null) {
                         sector = new Sector(IDGenerator.generateSectorID(), secName, "");
                         manager.getSectors().add(sector);
@@ -264,7 +285,7 @@ public class ManagerDashboard {
                     Item newItem = new Item(IDGenerator.generateItemID(), name, category, supplier, sector,
                                             purchaseDate, purchasePrice, sellingPrice, quantity);
                     controller.addItem(newItem);
-                    itemData.add(newItem);
+                    refreshItemTable(itemData);
                     return addButtonType;
                 } catch (Exception e) {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -314,8 +335,8 @@ public class ManagerDashboard {
                         throw new IllegalArgumentException("Invalid quantity");
                     }
                     selected.setQuantity(newQty);
-                    itemData.set(itemData.indexOf(selected), selected);
                     manager.saveInventory();
+                    itemTable.refresh();
                     return updateButtonType;
                 } catch (Exception e) {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -365,7 +386,7 @@ public class ManagerDashboard {
                         throw new IllegalArgumentException("Invalid discount");
                     }
                     controller.applyDiscount(selected.getItemID(), discount);
-                    itemData.set(itemData.indexOf(selected), selected);
+                    itemTable.refresh();
                     return applyButtonType;
                 } catch (Exception e) {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -591,9 +612,10 @@ public class ManagerDashboard {
         layout.getStyleClass().add("vbox");
         layout.setPadding(new Insets(20));
 
-        TableView<Supplier> supplierTable = new TableView<>();
+        supplierTable = new TableView<>();
         supplierTable.getStyleClass().add("table-view");
-        ObservableList<Supplier> supplierData = FXCollections.observableArrayList(manager.getSuppliers());
+        supplierTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        supplierData = FXCollections.observableArrayList(manager.getSuppliers());
         supplierTable.setItems(supplierData);
 
         TableColumn<Supplier, String> idCol = new TableColumn<>("ID");
@@ -638,75 +660,58 @@ public class ManagerDashboard {
         return layout;
     }
 
-    private VBox createAlertsTab() {
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(10));
+    private VBox createBillsTab() {
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(15));
 
-        ListView<Item> alertsList = new ListView<>();
-        ObservableList<Item> alertsData = FXCollections.observableArrayList(manager.checkStockAlerts());
-        alertsList.setItems(alertsData);
+        TableView<Bill> billsTable = new TableView<>();
+        billsTable.getStyleClass().add("table-view");
+        billsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        billsTable.setPrefHeight(400);
 
-        layout.getChildren().addAll(new Label("Items needing restock:"), alertsList);
-        return layout;
-    }
+        TableColumn<Bill, String> billIdCol = new TableColumn<>("Bill Number");
+        billIdCol.setCellValueFactory(new PropertyValueFactory<>("billNumber"));
 
-    private VBox createStatisticsTab() {
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(10));
+        TableColumn<Bill, LocalDate> dateCol = new TableColumn<>("Date");
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("billDate"));
 
-        HBox dateBox = new HBox(10);
-        DatePicker startDatePicker = new DatePicker();
-        DatePicker endDatePicker = new DatePicker();
-        Button generateStatsButton = new Button("Generate Statistics");
-
-        dateBox.getChildren().addAll(new Label("Start Date:"), startDatePicker,
-                                     new Label("End Date:"), endDatePicker, generateStatsButton);
-
-        TextArea statsArea = new TextArea();
-        statsArea.setEditable(false);
-
-        generateStatsButton.setOnAction(e -> {
-            LocalDate start = startDatePicker.getValue();
-            LocalDate end = endDatePicker.getValue();
-            if (start != null && end != null && !start.isAfter(end)) {
-                StringBuilder stats = new StringBuilder();
-                stats.append("Inventory Statistics from ").append(start).append(" to ").append(end).append("\n\n");
-
-                int totalItems = 0;
-                double totalValue = 0.0;
-                int lowStockCount = 0;
-
-                for (Sector sector : manager.getSectors()) {
-                    for (Item item : sector.getItems()) {
-                        if (!item.getPurchaseDate().isBefore(start) && !item.getPurchaseDate().isAfter(end)) {
-                            totalItems += item.getQuantity();
-                            totalValue += item.getSellingPrice() * item.getQuantity();
-                        }
-                        if (item.getQuantity() < 5) { 
-                            lowStockCount++;
-                        }
-                    }
-                }
-
-                stats.append("Total Items in Stock: ").append(totalItems).append("\n");
-                stats.append("Total Inventory Value: $").append(String.format("%.2f", totalValue)).append("\n");
-                stats.append("Items with Low Stock (<5): ").append(lowStockCount).append("\n");
-                stats.append("Number of Suppliers: ").append(manager.getSuppliers().size()).append("\n");
-
-                statsArea.setText(stats.toString());
-            } else {
-                statsArea.setText("Please select valid start and end dates.");
+        TableColumn<Bill, String> cashierCol = new TableColumn<>("Cashier");
+        cashierCol.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getCashier() != null) {
+                return new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCashier().getUsername());
             }
+            return new javafx.beans.property.SimpleStringProperty("");
         });
 
-        layout.getChildren().addAll(dateBox, statsArea);
+        TableColumn<Bill, Double> totalCol = new TableColumn<>("Total Amount");
+        totalCol.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
+
+        billsTable.getColumns().addAll(billIdCol, dateCol, cashierCol, totalCol);
+
+        List<Bill> allBills = manager.getAllBills();
+        allBills.sort((b1, b2) -> {
+            int dateCompare = b2.getBillDate().compareTo(b1.getBillDate());
+            if (dateCompare != 0) return dateCompare;
+            return b2.getBillNumber().compareTo(b1.getBillNumber());
+        });
+        billsTable.setItems(FXCollections.observableArrayList(allBills));
+
+        layout.getChildren().addAll(billsTable);
         return layout;
     }
 
-    // resetDashboard removed — functionality no longer exposed via UI
+    private void refreshItemTable(ObservableList<Item> itemData) {
+        itemData.clear();
+        if (manager.getSectors() != null) {
+            for (Sector sector : manager.getSectors()) {
+                if (sector != null && sector.getItems() != null) {
+                    itemData.addAll(sector.getItems());
+                }
+            }
+        }
+    }
 
     private void logout() {
-        
         LoginController controller = new LoginController();
         new LoginView(stage, controller);
     }

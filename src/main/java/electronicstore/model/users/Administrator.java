@@ -1,6 +1,10 @@
 package electronicstore.model.users;
 
 import electronicstore.model.exceptions.UserAlreadyExistsException;
+import electronicstore.model.inventory.Item;
+import electronicstore.model.inventory.Sector;
+import electronicstore.model.transactions.Bill;
+import electronicstore.model.transactions.BillItem;
 import electronicstore.model.transactions.Report;
 import electronicstore.model.utilities.FileManager;
 
@@ -21,13 +25,15 @@ public class Administrator extends User {
 
     @Override
     public void displayDashboard() {
-        
         System.out.println("Administrator Dashboard");
     }
 
     public void registerEmployee(User employee) throws UserAlreadyExistsException {
+        if (employeeList == null) {
+            employeeList = new ArrayList<>();
+        }
         for (User u : employeeList) {
-            if (u.getUsername().equals(employee.getUsername())) {
+            if (u != null && u.getUsername().equals(employee.getUsername())) {
                 throw new UserAlreadyExistsException(employee.getUsername());
             }
         }
@@ -56,16 +62,66 @@ public class Administrator extends User {
         return false;
     }
 
+    public void setEmployeeActive(String username, boolean active) {
+        for (User u : employeeList) {
+            if (u.getUsername().equals(username)) {
+                u.setActive(active);
+                saveEmployees();
+                return;
+            }
+        }
+    }
+
     public double getTotalIncome(LocalDate startDate, LocalDate endDate) {
-        
-        return 0.0;
+        double totalIncome = 0.0;
+        try {
+            List<Bill> bills = FileManager.loadBills();
+            if (bills != null) {
+                for (Bill bill : bills) {
+                    if (bill.getBillDate() != null && 
+                        !bill.getBillDate().isBefore(startDate) && 
+                        !bill.getBillDate().isAfter(endDate)) {
+                        totalIncome += bill.getTotalAmount();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading bills: " + e.getMessage());
+        }
+        return totalIncome;
     }
 
     public double getTotalCosts(LocalDate startDate, LocalDate endDate) {
+        double totalCosts = 0.0;
         
-        double totalSalaries = employeeList.stream().mapToDouble(User::getSalary).sum();
+        if (employeeList != null) {
+            for (User u : employeeList) {
+                if (u != null) {
+                    totalCosts += u.getSalary();
+                }
+            }
+        }
         
-        return totalSalaries;
+        try {
+            List<Sector> sectors = FileManager.loadSectors();
+            if (sectors != null) {
+                for (Sector sector : sectors) {
+                    if (sector.getItems() != null) {
+                        for (Item item : sector.getItems()) {
+                            if (item.getPurchaseDate() != null &&
+                                !item.getPurchaseDate().isBefore(startDate) &&
+                                !item.getPurchaseDate().isAfter(endDate)) {
+                                totalCosts += item.getPurchasePrice() * item.getQuantity();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading inventory: " + e.getMessage());
+        }
+        
+        return totalCosts;
     }
 
     public Report generateFinancialReport(LocalDate startDate, LocalDate endDate) {
@@ -85,12 +141,18 @@ public class Administrator extends User {
     public void loadEmployees() {
         try {
             employeeList = FileManager.loadUsers();
+            if (employeeList == null) {
+                employeeList = new ArrayList<>();
+            }
         } catch (Exception e) {
             employeeList = new ArrayList<>();
         }
     }
 
     public List<User> getEmployeeList() {
+        if (employeeList == null) {
+            employeeList = new ArrayList<>();
+        }
         return employeeList;
     }
 }

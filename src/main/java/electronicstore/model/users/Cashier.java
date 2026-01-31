@@ -41,9 +41,15 @@ public class Cashier extends User {
         if (currentBill == null) {
             createNewBill();
         }
+        if (sectors == null) {
+            return false;
+        }
         for (Sector sector : sectors) {
+            if (sector == null || sector.getItems() == null) {
+                continue;
+            }
             for (Item item : sector.getItems()) {
-                if (item.getItemID().equals(itemID)) {
+                if (item != null && item.getItemID().equals(itemID)) {
                     if (item.getQuantity() < qty) {
                         throw new OutOfStockException(item.getName(), item.getQuantity());
                     }
@@ -91,24 +97,20 @@ public class Cashier extends User {
 
     public void loadInventory() {
         try {
-            List<Item> items = FileManager.loadItems();
             List<Sector> loadedSectors = FileManager.loadSectors();
             
+            if (loadedSectors == null) {
+                loadedSectors = new ArrayList<>();
+            }
             
-            for (Item item : items) {
-                if (item.getSector() != null) {
-                    
-                    for (Sector sector : loadedSectors) {
-                        if (sector.getSectorID().equals(item.getSector().getSectorID())) {
-                            sector.getItems().add(item);
-                            break;
-                        }
-                    }
+            for (Sector sector : loadedSectors) {
+                if (sector != null && sector.getItems() == null) {
+                    sector.setItems(new ArrayList<>());
                 }
             }
             
             this.sectors = loadedSectors;
-            loadTodayBills(); 
+            loadTodayBills();
         } catch (Exception e) {
             this.sectors = new ArrayList<>();
         }
@@ -117,6 +119,12 @@ public class Cashier extends User {
     public void loadTodayBills() {
         try {
             List<Bill> allBills = FileManager.loadBills();
+            if (allBills == null) {
+                allBills = new ArrayList<>();
+            }
+            if (dailyBills == null) {
+                dailyBills = new ArrayList<>();
+            }
             LocalDate today = LocalDate.now();
             dailyBills.clear();
             for (Bill bill : allBills) {
@@ -131,9 +139,14 @@ public class Cashier extends User {
 
     public void saveInventory() {
         try {
+            if (sectors == null) {
+                sectors = new ArrayList<>();
+            }
             List<Item> allItems = new ArrayList<>();
             for (Sector sector : sectors) {
-                allItems.addAll(sector.getItems());
+                if (sector != null && sector.getItems() != null) {
+                    allItems.addAll(sector.getItems());
+                }
             }
             FileManager.saveItems(allItems);
             
@@ -144,6 +157,13 @@ public class Cashier extends User {
     }
 
     public Bill getCurrentBill() { return currentBill; }
-    public List<Sector> getSectors() { return sectors; }
+    
+    public List<Sector> getSectors() { 
+        if (sectors == null) {
+            sectors = new ArrayList<>();
+        }
+        return sectors; 
+    }
+    
     public void setSectors(List<Sector> sectors) { this.sectors = sectors; }
 }
